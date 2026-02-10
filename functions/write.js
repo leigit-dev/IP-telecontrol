@@ -2,7 +2,9 @@ export async function onRequestGet(context) {
     try {
         // 获取请求数据
         //const { value } = await context.request.json();
-        const value=await context.request.get("value");
+        //const value=await context.request.get("value");
+        const url = new URL(context.request.url);
+        const value = url.searchParams.get("value");
         // 写入 KV（键名: connection）
         await context.env.connection.put('connection', value);
         
