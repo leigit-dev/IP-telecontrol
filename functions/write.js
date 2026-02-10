@@ -1,4 +1,4 @@
-export async function onRequestPost(context) {
+export async function onRequestGet(context) {
     try {
         // 获取请求数据
         //const { value } = await context.request.json();
