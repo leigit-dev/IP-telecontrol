@@ -1,7 +1,7 @@
 export async function onRequestGet(context) {
     try {
         // 从 KV 读取 connection 值
-        const value = await context.env.KV.get('connection');
+        const value = await context.env.connection.get('connection');
         
         // 返回响应
         return new Response(JSON.stringify({
