@@ -14,7 +14,7 @@ export async function onRequestPost(context) {
         }
         
         // 写入 KV（键名: connection）
-        await context.env.KV.put('connection', value);
+        await context.env.connection.put('connection', value);
         
         // 返回成功响应
         return new Response(JSON.stringify({
