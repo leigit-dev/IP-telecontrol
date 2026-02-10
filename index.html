@@ -1,6 +1,82 @@
+<!DOCTYPE html>
 <html>
-<head></head>
+<head>
+    <title>KV Connection 读写示例</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
 <body>
-	<a href="/hello">hello</a>
+    <h1>Connection 变量读写</h1>
+    
+    <!-- 写入表单 -->
+    <section>
+        <h2>写入 Connection</h2>
+        <form id="writeForm">
+            <label for="connectionValue">Connection 值:</label>
+            <input type="text" id="connectionValue" name="value" 
+                   placeholder="输入 connection 值" required>
+            <button type="submit">保存</button>
+        </form>
+        <p id="writeResult"></p>
+    </section>
+    
+    <!-- 读取部分 -->
+    <section>
+        <h2>读取 Connection</h2>
+        <button id="readBtn">读取当前值</button>
+        <p id="readResult">点击按钮读取</p>
+    </section>
+    
+    <script>
+        // 写入处理
+        document.getElementById('writeForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const value = document.getElementById('connectionValue').value;
+            const resultEl = document.getElementById('writeResult');
+            
+            try {
+                const response = await fetch('/api/write', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ value })
+                });
+                
+                const data = await response.json();
+                resultEl.textContent = data.success 
+                    ? `✅ 保存成功: ${data.value}`
+                    : `❌ 保存失败: ${data.error}`;
+                resultEl.style.color = data.success ? 'green' : 'red';
+                
+                // 清空输入框
+                document.getElementById('connectionValue').value = '';
+            } catch (error) {
+                resultEl.textContent = `❌ 网络错误: ${error.message}`;
+                resultEl.style.color = 'red';
+            }
+        });
+        
+        // 读取处理
+        document.getElementById('readBtn').addEventListener('click', async () => {
+            const resultEl = document.getElementById('readResult');
+            
+            try {
+                const response = await fetch('/api/read');
+                const data = await response.json();
+                
+                if (data.success) {
+                    resultEl.textContent = `📖 当前 connection 值: ${data.value || '（空）'}`;
+                    resultEl.style.color = 'blue';
+                } else {
+                    resultEl.textContent = `❌ 读取失败: ${data.error}`;
+                    resultEl.style.color = 'red';
+                }
+            } catch (error) {
+                resultEl.textContent = `❌ 网络错误: ${error.message}`;
+                resultEl.style.color = 'red';
+            }
+        });
+    </script>
 </body>
 </html>
