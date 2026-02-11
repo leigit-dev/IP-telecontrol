@@ -15,7 +15,7 @@ function write_connect(cncs){
     }
     return ans;
 }
-export async function onRequestGet(context) {
+export async function onRequestPost(context) {
     try {
         const req = await context.request.json();
         const id=req["id"];
