@@ -13,7 +13,7 @@ function write_connect(cncs){
         ans=ans+k+":"+cncs[k]+";";
         //anss[ans[i]["id"]]=ans[i]["last-time"]
     }
-    return anss;
+    return ans;
 }
 export async function onRequestGet(context) {
     try {
