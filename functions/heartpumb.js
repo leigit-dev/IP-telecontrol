@@ -33,7 +33,9 @@ export async function onRequestGet(context) {
         // 返回响应
         return new Response(JSON.stringify({
             success: true,
-            value: stj
+            st:st,
+            stj:stj,
+            cns: cns
         }), {
             headers: { 'Content-Type': 'application/json' }
         });
