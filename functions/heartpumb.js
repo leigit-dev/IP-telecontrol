@@ -26,8 +26,8 @@ export async function onRequestGet(context) {
 
         stj[id]=time;
 
-        let cns=write_connect(stj)
-        await context.env.store.put('connection', value);
+        let cns=write_connect(stj);
+        await context.env.store.put('connection', cns);
         //const value = await context.env.store.get('connection');
         
         // 返回响应
