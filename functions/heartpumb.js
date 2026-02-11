@@ -2,7 +2,7 @@ function read_connect(cncs){
     let ans=cncs.split(";");
     let anss={};
     for (var i = 0; i <ans.length-1; i++) {
-        anss[ans[i]["id"]]=ans[i]["last-time"]
+        anss[ans[i].split(":")[0]]=ans[i].split(":")[1];
     }
     return anss;
 }
