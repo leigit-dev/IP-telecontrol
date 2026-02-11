@@ -33,9 +33,9 @@ export async function onRequestPost(context) {
         // 返回响应
         return new Response(JSON.stringify({
             success: true,
-            st:st,
-            stj:stj,
-            cns: cns
+            
+            stj:stj
+            
         }), {
             headers: { 'Content-Type': 'application/json' }
         });
