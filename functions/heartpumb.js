@@ -1,35 +1,18 @@
-function read_connect(cncs){
-    let ans=cncs.split(";");
-    let anss={};
-    for (var i = 0; i <ans.length-1; i++) {
-        anss[ans[i].split(":")[0]]=ans[i].split(":")[1];
-    }
-    return anss;
-}
-
-function write_connect(cncs){
-    let ans="";
-    for (let k in cncs) {
-        ans=ans+k+":"+cncs[k]+";";
-        //anss[ans[i]["id"]]=ans[i]["last-time"]
-    }
-    return ans;
-}
 export async function onRequestPost(context) {
     try {
         const req = await context.request.json();
         const id=req["id"];
-        const time=req["time"];
 
-        const st = await context.env.store.get('connection');
+        const st = await context.env.command.get('receiver');
         let stj=read_connect(st);
 
-        stj[id]=time;
+        // stj[id]=time;
 
-        let cns=write_connect(stj);
-        await context.env.store.put('connection', cns);
-        //const value = await context.env.store.get('connection');
+        // let cns=write_connect(stj);
+        // await context.env.command.put('connection', cns);
+        // //const value = await context.env.store.get('connection');
         
+        // const 
         // 返回响应
         return new Response(JSON.stringify({
             success: true,
