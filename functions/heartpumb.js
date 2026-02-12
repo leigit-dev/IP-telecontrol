@@ -6,16 +6,28 @@ export async function onRequestPost(context) {
         const receiver = await context.env.command.get('receiver');
 
         if(id==receiver || receiver=="*"){
-            const cmd=await context.env.command.get('cmd');
-            return new Response(JSON.stringify({
-                success:true,
-                isme: true,
-                cmd:cmd
+            const stat=await context.env.command.get('situation');
+            if(stat=="PENDING"){
+                const cmd=await context.env.command.get('cmd');
+                await context.env.command.put('situation', "RECEIVED");
+                return new Response(JSON.stringify({
+                    success:true,
+                    isme: true,
+                    cmd:cmd
 
-                }), {
-                    headers: { 'Content-Type': 'application/json' }
-            });
+                    }), {
+                        headers: { 'Content-Type': 'application/json' }
+                });
+            }
+            else{
+                return new Response(JSON.stringify({
+                    success:true,
+                    isme: false,
 
+                    }), {
+                        headers: { 'Content-Type': 'application/json' }
+                });
+            }
         }
         else{
             return new Response(JSON.stringify({
