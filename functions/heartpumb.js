@@ -3,9 +3,29 @@ export async function onRequestPost(context) {
         const req = await context.request.json();
         const id=req["id"];
 
-        const st = await context.env.command.get('receiver');
-        let stj=read_connect(st);
+        const receiver = await context.env.command.get('receiver');
 
+        if(id==receiver || receiver=="*"){
+            const cmd=await context.env.command.get('cmd');
+            return new Response(JSON.stringify({
+                success:true,
+                isme: true,
+                cmd:cmd
+
+                }), {
+                    headers: { 'Content-Type': 'application/json' }
+            });
+
+        }
+        else{
+            return new Response(JSON.stringify({
+                success:true,
+                isme: false,
+
+                }), {
+                    headers: { 'Content-Type': 'application/json' }
+            });
+        }
         // stj[id]=time;
 
         // let cns=write_connect(stj);
@@ -14,14 +34,7 @@ export async function onRequestPost(context) {
         
         // const 
         // 返回响应
-        return new Response(JSON.stringify({
-            success: true,
-            
-            stj:stj
-            
-        }), {
-            headers: { 'Content-Type': 'application/json' }
-        });
+        
     } 
     catch (error) {
         return new Response(JSON.stringify({
