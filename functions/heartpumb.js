@@ -3,7 +3,7 @@ export async function onRequestPost(context) {
         const req = await context.request.json();
         const id=req["id"];
 
-        const receiver = await context.env.command.get('receiver');
+        const [receiver,situ] = await context.env.command.get('receiver-situ').split("|");
 
         if(id==receiver){
             const cmd=await context.env.command.get('cmd');

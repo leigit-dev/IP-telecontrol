@@ -15,9 +15,9 @@ export async function onRequestPost(context) {
         const receiver=req["receiver"];
         const cmd=req["cmd"];
 
-        await context.env.command.put('receiver', receiver);
+        await context.env.command.put('receiver-situ', receiver+"|PENDING");
         await context.env.command.put('cmd', cmd);
-        await context.env.command.put('situation', "PENDING");
+        //await context.env.command.put('situation', "PENDING");
 
         return new Response(JSON.stringify({
             success:true,

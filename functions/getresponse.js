@@ -15,7 +15,7 @@ export async function onRequestPost(context) {
         // await context.env.response.put('head', reshead);
         // await context.env.response.put('body', resbody);
         // await context.env.command.put('situation', "FINISHED");
-        let {receiver,stat} = situ.split("|");
+        let [receiver,stat] = situ.split("|");
         if(stat=="FINISHED"){
             const rshead = await context.env.response.get('head');
             const rsbody = await context.env.response.get("body");
