@@ -31,7 +31,7 @@ export async function onRequestPost(context) {
         else{
             return new Response(JSON.stringify({
                 success:true,
-                situation:situ+"finish",
+                situation:situ,
                 receiver:receiver,
                 stat:stat
                 }), {
