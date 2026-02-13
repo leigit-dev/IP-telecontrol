@@ -21,7 +21,7 @@ export async function onRequestPost(context) {
             const rsbody = await context.env.response.get("body");
             return new Response(JSON.stringify({
                 success:true,
-                situation:situ,
+                situation:situ+"finish",
                 rshead:rshead,
                 rsbody:rsbody
                 }), {
