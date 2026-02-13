@@ -31,7 +31,9 @@ export async function onRequestPost(context) {
         else{
             return new Response(JSON.stringify({
                 success:true,
-                situation:situ
+                situation:situ,
+                receiver:receiver,
+                stat:stat
                 }), {
                     headers: { 'Content-Type': 'application/json' }
             });
