@@ -2,6 +2,7 @@ export async function onRequestPost(context) {
     try {
         const req = await context.request.json();
 
+
         const ssn = await context.env.command.get('session');
         if(req["session"] != ssn){
             return new Response(JSON.stringify({
