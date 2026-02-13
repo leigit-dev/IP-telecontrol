@@ -5,35 +5,32 @@ export async function onRequestPost(context) {
 
         const receiver = await context.env.command.get('receiver');
 
-        if(id==receiver || receiver=="*"){
-            const stat=await context.env.command.get('situation');
-            if(stat=="PENDING"){
-                const cmd=await context.env.command.get('cmd');
-                await context.env.command.put('situation', "RECEIVED");
-                return new Response(JSON.stringify({
-                    success:true,
-                    isme: true,
-                    cmd:cmd
-
-                    }), {
-                        headers: { 'Content-Type': 'application/json' }
-                });
-            }
-            else{
-                return new Response(JSON.stringify({
-                    success:true,
-                    isme: false,
-
-                    }), {
-                        headers: { 'Content-Type': 'application/json' }
-                });
-            }
+        if(id==receiver){
+            const cmd=await context.env.command.get('cmd');
+            await context.env.command.put('receiver-situ', receiver+"|RECEIVED");
+            return new Response(JSON.stringify({
+                success:true,
+                isme: true,
+                cmd:cmd
+                }), {
+                    headers: { 'Content-Type': 'application/json' }
+            });
+            
+        }
+        else if(receiver=="$SIGNUP"){
+            return new Response(JSON.stringify({
+                success:true,
+                isme: true,
+                cmd:"$SIGNUP"
+                }), {
+                    headers: { 'Content-Type': 'application/json' }
+            });
         }
         else{
             return new Response(JSON.stringify({
                 success:true,
                 isme: false,
-
+                cmd:"$NOT_ME"
                 }), {
                     headers: { 'Content-Type': 'application/json' }
             });

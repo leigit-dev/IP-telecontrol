@@ -27,7 +27,6 @@ export async function onRequestPost(context) {
         let cns=write_connect(stj);
         await context.env.connects.put('connection', cns);
         //const value = await context.env.store.get('connection');
-        
         // 返回响应
         return new Response(JSON.stringify({
             success: true,
