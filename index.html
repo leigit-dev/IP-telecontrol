@@ -1,82 +1,478 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>KV Connection 读写示例</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>暗色命令发送者</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        body {
+            background-color: #0a0c0e;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+        }
+
+        .container {
+            max-width: 680px;
+            width: 100%;
+            background: #15181c;
+            border-radius: 24px;
+            padding: 2rem 1.8rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8), 0 0 0 1px #2a2f35 inset;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 500;
+            letter-spacing: -0.02em;
+            color: #edf2f7;
+            margin-bottom: 0.3rem;
+        }
+
+        .sub {
+            color: #8f9eae;
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid #262c32;
+            padding-bottom: 1rem;
+        }
+
+        .field {
+            margin-bottom: 1.6rem;
+        }
+
+        label {
+            display: block;
+            color: #b4c0cc;
+            font-size: 0.85rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+            margin-bottom: 0.5rem;
+        }
+
+        input, textarea {
+            width: 100%;
+            background: #1d2329;
+            border: 1px solid #2f3842;
+            border-radius: 14px;
+            padding: 0.85rem 1.2rem;
+            color: #eef4fc;
+            font-size: 1rem;
+            transition: border 0.2s, box-shadow 0.2s;
+            outline: none;
+        }
+
+        input:focus, textarea:focus {
+            border-color: #5773a3;
+            box-shadow: 0 0 0 3px rgba(75, 110, 175, 0.2);
+        }
+
+        input[type="password"] {
+            letter-spacing: 0.2rem;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            margin: 2rem 0 1.8rem;
+        }
+
+        .btn {
+            flex: 1;
+            background: #262e36;
+            border: none;
+            border-radius: 40px;
+            padding: 0.9rem 1.2rem;
+            color: #d7e2ec;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.15s, transform 0.1s;
+            border: 1px solid #37414b;
+        }
+
+        .btn-primary {
+            background: #1f3a5f;
+            border-color: #346792;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #254b77;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn:disabled {
+            opacity: 0.4;
+            pointer-events: none;
+        }
+
+        .status-card {
+            background: #101418;
+            border-radius: 20px;
+            padding: 1.5rem;
+            border: 1px solid #2a323b;
+        }
+
+        .status-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.2rem;
+            color: #98a9bb;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            border-bottom: 1px dashed #2e3943;
+            padding-bottom: 0.6rem;
+        }
+
+        .status-badge {
+            background: #1f2a33;
+            padding: 0.3rem 1rem;
+            border-radius: 30px;
+            color: #bdd3e8;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .result-item {
+            margin-bottom: 1.2rem;
+        }
+
+        .result-label {
+            color: #778faa;
+            font-size: 0.8rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .result-value {
+            background: #1b2229;
+            border-radius: 12px;
+            padding: 0.9rem 1.2rem;
+            color: #dbe9ff;
+            font-family: 'SF Mono', monospace;
+            font-size: 0.9rem;
+            white-space: pre-wrap;
+            word-break: break-word;
+            border: 1px solid #2e3a45;
+            max-height: 200px;
+            overflow: auto;
+        }
+
+        .error-text {
+            color: #f9acac;
+            background: #3d2424;
+            border: 1px solid #a15151;
+            border-radius: 12px;
+            padding: 0.9rem 1.2rem;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .info-note {
+            font-size: 0.8rem;
+            color: #6e7e90;
+            margin-top: 0.5rem;
+            text-align: right;
+        }
+    </style>
 </head>
 <body>
-    <h1>Connection 变量读写？</h1>
-    
-    <!-- 写入表单 -->
-    <section>
-        <h2>写入 Connection</h2>
-        <form id="writeForm">
-            <label for="connectionValue">Connection 值:</label>
-            <input type="text" id="connectionValue" name="value" 
-                   placeholder="输入 connection 值" required>
-            <button type="submit">保存</button>
-        </form>
-        <p id="writeResult"></p>
-    </section>
-    
-    <!-- 读取部分 -->
-    <section>
-        <h2>读取 Connection</h2>
-        <button id="readBtn">读取当前值</button>
-        <p id="readResult">点击按钮读取</p>
-    </section>
-    
+    <div class="container">
+        <h1>⏤͟͟͞͞ 发送命令</h1>
+        <div class="sub">加密会话 · 接收者 · 指令负载</div>
+
+        <!-- 输入表单 -->
+        <div class="field">
+            <label>🔑 密码 (session)</label>
+            <input type="password" id="sessionInput" placeholder="••••••••" autocomplete="off">
+        </div>
+
+        <div class="field">
+            <label>📡 接收者 ID (receiver)</label>
+            <input type="text" id="receiverInput" placeholder="例如: node-a42">
+        </div>
+
+        <div class="field">
+            <label>⚡ 命令 (cmd)</label>
+            <textarea id="cmdInput" placeholder="输入命令内容... 例如: GET /status"></textarea>
+        </div>
+
+        <div class="button-group">
+            <button class="btn btn-primary" id="sendBtn">发送命令</button>
+            <button class="btn" id="clearBtn">清除</button>
+        </div>
+
+        <!-- 状态 / 结果展示区 -->
+        <div class="status-card" id="resultPanel">
+            <div class="status-header">
+                <span>执行状态</span>
+                <span class="status-badge" id="stateBadge">就绪</span>
+            </div>
+            <div id="statusDetail">
+                <div class="result-item">
+                    <div class="result-label">接收者</div>
+                    <div class="result-value" id="displayReceiver">—</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">阶段</div>
+                    <div class="result-value" id="displayStage">等待发送</div>
+                </div>
+                <div class="result-item hidden" id="headContainer">
+                    <div class="result-label">响应头 (head)</div>
+                    <div class="result-value" id="displayHead"></div>
+                </div>
+                <div class="result-item hidden" id="bodyContainer">
+                    <div class="result-label">响应体 (body)</div>
+                    <div class="result-value" id="displayBody"></div>
+                </div>
+            </div>
+            <div class="info-note" id="errorMessage"></div>
+        </div>
+    </div>
+
     <script>
-        // 写入处理
-        document.getElementById('writeForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const value = document.getElementById('connectionValue').value;
-            const resultEl = document.getElementById('writeResult');
-            
-            try {
-                const response = await fetch('/api/write', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ value })
-                });
-                
-                const data = await response.json();
-                resultEl.textContent = data.success 
-                    ? `✅ 保存成功: ${data.value}`
-                    : `❌ 保存失败: ${data.error}`;
-                resultEl.style.color = data.success ? 'green' : 'red';
-                
-                // 清空输入框
-                document.getElementById('connectionValue').value = '';
-            } catch (error) {
-                resultEl.textContent = `❌ 网络错误: ${error.message}`;
-                resultEl.style.color = 'red';
+        (function() {
+            // DOM elements
+            const sessionInput = document.getElementById('sessionInput');
+            const receiverInput = document.getElementById('receiverInput');
+            const cmdInput = document.getElementById('cmdInput');
+            const sendBtn = document.getElementById('sendBtn');
+            const clearBtn = document.getElementById('clearBtn');
+            const stateBadge = document.getElementById('stateBadge');
+            const displayReceiver = document.getElementById('displayReceiver');
+            const displayStage = document.getElementById('displayStage');
+            const headContainer = document.getElementById('headContainer');
+            const bodyContainer = document.getElementById('bodyContainer');
+            const displayHead = document.getElementById('displayHead');
+            const displayBody = document.getElementById('displayBody');
+            const errorMessage = document.getElementById('errorMessage');
+
+            // 轮询控制
+            let pollingInterval = null;
+            let isWaitingForResult = false;
+
+            // 重置显示区域 (不清除输入)
+            function resetDisplay() {
+                stateBadge.textContent = '就绪';
+                displayReceiver.textContent = '—';
+                displayStage.textContent = '等待发送';
+                headContainer.classList.add('hidden');
+                bodyContainer.classList.add('hidden');
+                displayHead.textContent = '';
+                displayBody.textContent = '';
+                errorMessage.textContent = '';
             }
-        });
-        
-        // 读取处理
-        document.getElementById('readBtn').addEventListener('click', async () => {
-            const resultEl = document.getElementById('readResult');
-            
-            try {
-                const response = await fetch('/api/read');
-                const data = await response.json();
-                
-                if (data.success) {
-                    resultEl.textContent = `📖 当前 connection 值: ${data.value || '（空）'}`;
-                    resultEl.style.color = 'blue';
-                } else {
-                    resultEl.textContent = `❌ 读取失败: ${data.error}`;
-                    resultEl.style.color = 'red';
+
+            // 清除输入
+            function clearInputs() {
+                sessionInput.value = '';
+                receiverInput.value = '';
+                cmdInput.value = '';
+                resetDisplay();
+            }
+
+            // 停止轮询
+            function stopPolling() {
+                if (pollingInterval) {
+                    clearInterval(pollingInterval);
+                    pollingInterval = null;
                 }
-            } catch (error) {
-                resultEl.textContent = `❌ 网络错误: ${error.message}`;
-                resultEl.style.color = 'red';
+                isWaitingForResult = false;
+                sendBtn.disabled = false;
             }
-        });
+
+            // 开始轮询结果 (仅当命令成功发送后)
+            function startPolling() {
+                if (pollingInterval) stopPolling();
+                isWaitingForResult = true;
+                sendBtn.disabled = true;  // 发送后禁用按钮，防止重复
+                stateBadge.textContent = '轮询中';
+
+                pollingInterval = setInterval(async () => {
+                    try {
+                        // 调用 getresponse 端点 (POST)
+                        const response = await fetch('/getresponse', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({})  // 后端不需要具体参数
+                        });
+
+                        if (!response.ok) {
+                            throw new Error(`HTTP ${response.status}`);
+                        }
+
+                        const data = await response.json();
+
+                        if (!data.success) {
+                            throw new Error(data.error || '未知错误');
+                        }
+
+                        // 更新显示
+                        // 根据返回的 situation 字段解析 (格式: "receiver|stat")
+                        if (data.situation) {
+                            const sitStr = data.situation;
+                            const parts = sitStr.split('|');
+                            const recvFromSit = parts[0] || '?';
+                            const statFromSit = parts[1] || 'UNKNOWN';
+                            displayReceiver.textContent = recvFromSit;
+                            displayStage.textContent = statFromSit;
+
+                            // 如果后端额外返回了 receiver/stat 字段 (参考 getresponse.js)
+                            if (data.receiver) displayReceiver.textContent = data.receiver;
+                            if (data.stat) displayStage.textContent = data.stat;
+
+                            // 如果已完成
+                            if (statFromSit === 'FINISHED' || data.stat === 'FINISHED') {
+                                // 显示 head / body
+                                if (data.rshead !== undefined) {
+                                    headContainer.classList.remove('hidden');
+                                    displayHead.textContent = data.rshead || '(空)';
+                                } else {
+                                    headContainer.classList.add('hidden');
+                                }
+
+                                if (data.rsbody !== undefined) {
+                                    bodyContainer.classList.remove('hidden');
+                                    displayBody.textContent = data.rsbody || '(空)';
+                                } else {
+                                    bodyContainer.classList.add('hidden');
+                                }
+
+                                stateBadge.textContent = '已完成';
+                                stopPolling();  // 结束轮询
+                            } else {
+                                // 未完成：隐藏响应区域
+                                headContainer.classList.add('hidden');
+                                bodyContainer.classList.add('hidden');
+                                stateBadge.textContent = statFromSit || '处理中';
+                            }
+                        } else {
+                            // 没有 situation 字段（可能后端异常）
+                            displayStage.textContent = '未知状态';
+                        }
+
+                        errorMessage.textContent = ''; // 清除错误
+                    } catch (err) {
+                        console.warn('轮询错误:', err);
+                        errorMessage.textContent = `轮询失败: ${err.message}`;
+                        // 不停止轮询，继续尝试 (但显示错误)
+                    }
+                }, 1500); // 1.5秒间隔
+            }
+
+            // 发送命令
+            async function sendCommand() {
+                // 清除旧状态
+                resetDisplay();
+                stopPolling();
+
+                const session = sessionInput.value.trim();
+                const receiver = receiverInput.value.trim();
+                const cmd = cmdInput.value.trim();
+
+                if (!session || !receiver || !cmd) {
+                    errorMessage.textContent = '请填写所有字段 (session, 接收者, 命令)';
+                    return;
+                }
+
+                // 临时显示
+                displayReceiver.textContent = receiver;
+                displayStage.textContent = '发送中...';
+                stateBadge.textContent = '验证';
+
+                try {
+                    const response = await fetch('/createcmd', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            session: session,
+                            receiver: receiver,
+                            cmd: cmd
+                        })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`服务器响应 ${response.status}`);
+                    }
+
+                    const data = await response.json();
+
+                    if (!data.success) {
+                        throw new Error(data.error || '请求失败');
+                    }
+
+                    if (data.access === false) {
+                        // session 不匹配
+                        errorMessage.textContent = '❌ 认证失败：session 无效';
+                        displayStage.textContent = '拒绝访问';
+                        stateBadge.textContent = '失败';
+                        return;
+                    }
+
+                    if (data.access === true) {
+                        // 成功发送，开始轮询结果
+                        displayStage.textContent = '已发送，等待接收者...';
+                        stateBadge.textContent = 'PENDING';
+                        startPolling();
+                    } else {
+                        // 意外响应
+                        displayStage.textContent = '未知响应';
+                    }
+                } catch (err) {
+                    errorMessage.textContent = `发送错误: ${err.message}`;
+                    displayStage.textContent = '异常';
+                    stateBadge.textContent = '错误';
+                    stopPolling();
+                }
+            }
+
+            // 事件绑定
+            sendBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                sendCommand();
+            });
+
+            clearBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                clearInputs();
+                stopPolling();
+                resetDisplay();
+            });
+
+            // 页面卸载时清除轮询
+            window.addEventListener('beforeunload', () => {
+                if (pollingInterval) clearInterval(pollingInterval);
+            });
+
+            // 初始重置
+            resetDisplay();
+        })();
     </script>
+
+    <!-- 说明: 后端端点需映射到 /createcmd 和 /getresponse (POST) 
+         根据提供的worker代码，这些路由已经就绪。确保前端与API同域。 
+         暗色风格完全无emoji，符合要求 -->
 </body>
 </html>
