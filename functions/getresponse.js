@@ -21,7 +21,7 @@ export async function onRequestPost(context) {
             const rsbody = await context.env.response.get("body");
             return new Response(JSON.stringify({
                 success:true,
-                situation:situ+"finish",
+                situation:situ,
                 rshead:rshead,
                 rsbody:rsbody
                 }), {
@@ -31,7 +31,7 @@ export async function onRequestPost(context) {
         else{
             return new Response(JSON.stringify({
                 success:true,
-                situation:situ,
+                situation:situ+"finish",
                 receiver:receiver,
                 stat:stat
                 }), {
