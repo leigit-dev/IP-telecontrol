@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>暗黑指挥 · 发送端 (自动轮询)</title>
+    <title>IP-Telecontrol Dashboard</title>
     <style>
         * {
             margin: 0;
@@ -133,6 +133,7 @@
             border-color: #b79aff;
             color: white;
             text-shadow: 0 2px 5px #00000050;
+
         }
 
         .btn-accent:hover {
@@ -407,7 +408,7 @@
 <!-- 主界面 (发送端) -->
 <div id="mainScreen" class="main-screen">
     <div class="main-header">
-        <span class="logo">◈  DARK  SENDER  ◈</span>
+        <span class="logo">◈  IPTC DASHBOARD  ◈</span>
         <div class="badge">
             <span class="dot"></span>
             <span id="sessionStatus">session 活跃</span>
@@ -446,8 +447,8 @@
                 <label class="input-label">命令内容</label>
                 <input type="text" id="cmdInput" class="input-field" placeholder="ls -la / or custom command">
             </div>
-            <button class="btn btn-accent" id="sendCmdBtn" style="width:100%;">▶ 下发命令</button>
-
+            <button class="btn btn-accent" id="sendCmdBtn" style="width:49%;">▶ 下发命令</button>
+            <button class="btn btn-accent" id="cnlCmdBtn" style="width:49%;">✖️ 取消命令</button>
             <hr> <!-- 分割线，以下为响应区域 -->
 
             <!-- 当前指令状态 + 响应预览 (原左侧的响应区域移动至此) -->
@@ -576,6 +577,20 @@
 
         // 登录验证
         async function login(session) {
+            if(1==10){
+                SESSION = session;
+                localStorage.setItem('dark_session', session);
+                loginScreen.style.display = 'none';
+                mainScreen.style.display = 'block';
+                sessionStatusSpan.innerText = `session: ${session.substring(0,8)}...`;
+                // 加载初始数据
+                refreshClients();
+                refreshCommandStatus();
+                // 启动自动轮询 (默认取输入框值)
+                const interval = parseInt(pollIntervalInput.value, 10) || 10;
+                startPolling(interval);
+                return;
+            }
             const res = await apiCall('/verify', { session }, false);
             if (res && res.success && res.access === true) {
                 SESSION = session;
@@ -692,6 +707,15 @@
             }
         }
 
+        async function createCommand() {
+
+            const res = await apiCall('/cancelcmd', { receiver, cmd }, true);
+            if (res && res.success) {
+                showToast(`指令已取消 -> ${receiver}`, false);
+                //cmdInput.value = '';   // 可选清空
+                refreshCommandStatus(); // 立即刷新状态
+            }
+        }
         // 事件绑定
         loginBtn.addEventListener('click', () => {
             const pwd = passwordInput.value.trim();
@@ -708,6 +732,7 @@
         refreshClientsBtn.addEventListener('click', refreshClients);
         refreshStatusBtn.addEventListener('click', refreshCommandStatus);
         sendCmdBtn.addEventListener('click', createCommand);
+        cnlCmdBtn.addEventListener('click', cancelCommand);
 
         // 选择下拉时同步到 manual 输入框
         receiverSelect.addEventListener('change', () => {
