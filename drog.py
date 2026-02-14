@@ -29,7 +29,7 @@ def signup():
     url = BASE_URL + "/signupdrugs"
     payload = {
         "id": CLIENT_ID,
-        "time": datetime.now().isoformat()
+        "time": time.strftime("%y.%m.%d_%H.%M.%S")
     }
     try:
         # 直接使用 requests.post，不通过 Session

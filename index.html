@@ -648,7 +648,7 @@
             let html = '';
             let options = '<option value="">— 选择ID —</option>';
             entries.sort((a, b) => b[1].localeCompare(a[1])).forEach(([id, time]) => {
-                html += `<div class="client-item"><span class="client-id">${id}</span><span class="client-time">${time.slice(5,16)}</span></div>`;
+                html += `<div class="client-item"><span class="client-id">${id}</span><span class="client-time">${time}</span></div>`;
                 options += `<option value="${id}">${id}</option>`;
             });
             clientListContainer.innerHTML = html;
@@ -707,7 +707,7 @@
             }
         }
 
-        async function createCommand() {
+        async function cancelCommand() {
 
             const res = await apiCall('/cancelcmd', { receiver, cmd }, true);
             if (res && res.success) {
