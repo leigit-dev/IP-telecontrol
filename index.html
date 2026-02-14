@@ -3,476 +3,698 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>暗色命令发送者</title>
+    <title>暗黑指挥 · 发送端</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
         }
 
         body {
-            background-color: #0a0c0e;
+            background-color: #0a0c0f;
             min-height: 100vh;
             display: flex;
-            justify-content: center;
             align-items: center;
-            padding: 1rem;
+            justify-content: center;
+            transition: background 0.3s;
+            color: #e4e6eb;
         }
 
-        .container {
-            max-width: 680px;
+        /* 全屏验证层 */
+        .login-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
-            background: #15181c;
-            border-radius: 24px;
-            padding: 2rem 1.8rem;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8), 0 0 0 1px #2a2f35 inset;
+            height: 100%;
+            background: radial-gradient(circle at 30% 30%, #1a1f2a, #030405);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(4px);
         }
 
-        h1 {
-            font-size: 1.8rem;
+        .login-card {
+            background: rgba(18, 22, 28, 0.9);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 70, 150, 0.2);
+            border-radius: 2rem;
+            padding: 2.5rem 2rem;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 25px 50px -8px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 70, 150, 0.2) inset;
+            transition: box-shadow 0.2s;
+        }
+
+        .login-card:hover {
+            box-shadow: 0 30px 60px -8px #0a0c14, 0 0 0 1px rgba(255, 110, 180, 0.4) inset;
+        }
+
+        .login-title {
+            font-size: 2.2rem;
             font-weight: 500;
-            letter-spacing: -0.02em;
-            color: #edf2f7;
-            margin-bottom: 0.3rem;
-        }
-
-        .sub {
-            color: #8f9eae;
-            font-size: 0.9rem;
-            margin-bottom: 2rem;
-            border-bottom: 1px solid #262c32;
-            padding-bottom: 1rem;
-        }
-
-        .field {
-            margin-bottom: 1.6rem;
-        }
-
-        label {
-            display: block;
-            color: #b4c0cc;
-            font-size: 0.85rem;
-            font-weight: 500;
+            letter-spacing: 2px;
+            text-align: center;
+            background: linear-gradient(135deg, #f5b7ff, #9f7afe);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 0.5rem;
             text-transform: uppercase;
-            letter-spacing: 0.02em;
+            text-shadow: 0 0 8px #9f7afe80;
+        }
+
+        .login-sub {
+            text-align: center;
+            color: #7b7f8c;
+            margin-bottom: 2.5rem;
+            font-size: 0.9rem;
+            border-bottom: 1px dashed #2f3542;
+            padding-bottom: 1.2rem;
+        }
+
+        .input-group {
+            margin-bottom: 1.8rem;
+        }
+
+        .input-label {
+            display: block;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #a0a5b5;
             margin-bottom: 0.5rem;
         }
 
-        input, textarea {
+        .input-field {
             width: 100%;
-            background: #1d2329;
-            border: 1px solid #2f3842;
-            border-radius: 14px;
-            padding: 0.85rem 1.2rem;
-            color: #eef4fc;
+            background: #0f131a;
+            border: 1px solid #2c313d;
+            border-radius: 1.2rem;
+            padding: 0.9rem 1.2rem;
             font-size: 1rem;
-            transition: border 0.2s, box-shadow 0.2s;
+            color: #f0f2f5;
             outline: none;
+            transition: all 0.2s;
         }
 
-        input:focus, textarea:focus {
-            border-color: #5773a3;
-            box-shadow: 0 0 0 3px rgba(75, 110, 175, 0.2);
-        }
-
-        input[type="password"] {
-            letter-spacing: 0.2rem;
-        }
-
-        textarea {
-            resize: vertical;
-            min-height: 100px;
-            font-family: 'SF Mono', 'Fira Code', monospace;
-        }
-
-        .button-group {
-            display: flex;
-            gap: 1rem;
-            margin: 2rem 0 1.8rem;
+        .input-field:focus {
+            border-color: #b983ff;
+            box-shadow: 0 0 0 3px rgba(185, 131, 255, 0.2);
         }
 
         .btn {
-            flex: 1;
-            background: #262e36;
-            border: none;
-            border-radius: 40px;
-            padding: 0.9rem 1.2rem;
-            color: #d7e2ec;
-            font-weight: 600;
+            background: linear-gradient(145deg, #1e2430, #11161f);
+            border: 1px solid #3b3f55;
+            border-radius: 2rem;
+            padding: 0.9rem 1.8rem;
             font-size: 1rem;
-            cursor: pointer;
-            transition: background 0.15s, transform 0.1s;
-            border: 1px solid #37414b;
-        }
-
-        .btn-primary {
-            background: #1f3a5f;
-            border-color: #346792;
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: #254b77;
-        }
-
-        .btn:active {
-            transform: scale(0.98);
-        }
-
-        .btn:disabled {
-            opacity: 0.4;
-            pointer-events: none;
-        }
-
-        .status-card {
-            background: #101418;
-            border-radius: 20px;
-            padding: 1.5rem;
-            border: 1px solid #2a323b;
-        }
-
-        .status-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 1.2rem;
-            color: #98a9bb;
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            border-bottom: 1px dashed #2e3943;
-            padding-bottom: 0.6rem;
-        }
-
-        .status-badge {
-            background: #1f2a33;
-            padding: 0.3rem 1rem;
-            border-radius: 30px;
-            color: #bdd3e8;
-            font-size: 0.8rem;
             font-weight: 600;
+            color: #d1d5e0;
+            cursor: pointer;
+            transition: all 0.15s;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+            width: 100%;
+            letter-spacing: 1px;
         }
 
-        .result-item {
-            margin-bottom: 1.2rem;
+        .btn:hover {
+            background: linear-gradient(145deg, #262e3d, #1a212f);
+            border-color: #8f7ee6;
+            color: white;
+            box-shadow: 0 8px 18px #00000080, 0 0 0 1px #a07eff;
         }
 
-        .result-label {
-            color: #778faa;
-            font-size: 0.8rem;
-            margin-bottom: 0.3rem;
+        .btn-accent {
+            background: linear-gradient(145deg, #6b4f9f, #523f82);
+            border-color: #b79aff;
+            color: white;
+            text-shadow: 0 2px 5px #00000050;
         }
 
-        .result-value {
-            background: #1b2229;
-            border-radius: 12px;
-            padding: 0.9rem 1.2rem;
-            color: #dbe9ff;
-            font-family: 'SF Mono', monospace;
-            font-size: 0.9rem;
-            white-space: pre-wrap;
-            word-break: break-word;
-            border: 1px solid #2e3a45;
-            max-height: 200px;
-            overflow: auto;
+        .btn-accent:hover {
+            background: linear-gradient(145deg, #7e5fb8, #624a99);
+            border-color: #dbbaff;
         }
 
-        .error-text {
-            color: #f9acac;
-            background: #3d2424;
-            border: 1px solid #a15151;
-            border-radius: 12px;
-            padding: 0.9rem 1.2rem;
-        }
-
-        .hidden {
+        .main-screen {
+            width: 100%;
+            min-height: 100vh;
+            background: #0b0e12;
+            background-image: radial-gradient(circle at 20% 30%, #191e2a 0%, #06080c 90%);
+            padding: 2rem 1.5rem;
             display: none;
         }
 
-        .info-note {
+        .main-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 2.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 600;
+            background: linear-gradient(145deg, #e1c6ff, #b88aff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: 1.5px;
+        }
+
+        .badge {
+            background: #1b1f2b;
+            border: 1px solid #5f518c;
+            border-radius: 3rem;
+            padding: 0.5rem 1.2rem;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            color: #cbb9ff;
+        }
+
+        .badge .dot {
+            width: 10px;
+            height: 10px;
+            background: #5aff8c;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #41f57d;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 1.8rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: rgba(18, 22, 30, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid #2f3545;
+            border-radius: 1.8rem;
+            padding: 1.6rem 1.6rem;
+            box-shadow: 0 20px 35px -12px #010101;
+            transition: border 0.15s;
+        }
+
+        .card:hover {
+            border-color: #7e6eb0;
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 500;
+            margin-bottom: 1.2rem;
+            color: #bfc9f0;
+            border-left: 4px solid #a07eff;
+            padding-left: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .client-list {
+            max-height: 220px;
+            overflow-y: auto;
+            padding-right: 5px;
+            scrollbar-width: thin;
+            scrollbar-color: #554b77 #1b1f2b;
+        }
+
+        .client-list::-webkit-scrollbar {
+            width: 5px;
+        }
+        .client-list::-webkit-scrollbar-track {
+            background: #1b1f2b;
+            border-radius: 10px;
+        }
+        .client-list::-webkit-scrollbar-thumb {
+            background: #6d5d9a;
+            border-radius: 10px;
+        }
+
+        .client-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.7rem 0.5rem;
+            border-bottom: 1px solid #2b3140;
+            font-size: 0.95rem;
+        }
+
+        .client-id {
+            color: #d2bbff;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-weight: 500;
+        }
+
+        .client-time {
+            color: #9aa4bf;
             font-size: 0.8rem;
-            color: #6e7e90;
+            background: #1e2332;
+            padding: 0.2rem 0.7rem;
+            border-radius: 2rem;
+        }
+
+        .status-line {
+            background: #131825;
+            border-radius: 1.4rem;
+            padding: 1.2rem;
+            margin: 1rem 0;
+            border: 1px solid #3c3455;
+            font-family: monospace;
+        }
+
+        .status-prop {
+            display: flex;
+            align-items: baseline;
+            margin: 0.4rem 0;
+            flex-wrap: wrap;
+        }
+
+        .prop-key {
+            color: #959ec2;
+            width: 100px;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+        }
+
+        .prop-value {
+            color: #f0d6ff;
+            font-weight: 500;
+            word-break: break-word;
+            flex: 1;
+        }
+
+        .response-block {
+            background: #0c0f17;
+            border-radius: 1.2rem;
+            padding: 1rem;
+            margin-top: 0.8rem;
+            border-left: 4px solid #b300ff;
+        }
+
+        .response-head {
+            color: #ffb3d9;
+            font-size: 0.9rem;
+        }
+
+        .response-body {
+            background: #1a1f2c;
+            padding: 0.8rem;
+            border-radius: 1rem;
             margin-top: 0.5rem;
-            text-align: right;
+            color: #b9d0ff;
+            white-space: pre-wrap;
+            font-family: monospace;
+            border: 1px solid #463c68;
+        }
+
+        .form-row {
+            margin-bottom: 1.5rem;
+        }
+
+        select.input-field {
+            appearance: none;
+            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23b497ff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+            background-repeat: no-repeat;
+            background-position: right 1.2rem center;
+            background-size: 1.2rem;
+        }
+
+        .action-bar {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-small {
+            padding: 0.6rem 1.4rem;
+            width: auto;
+            font-size: 0.9rem;
+        }
+
+        .toast-message {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: #1d1f2e;
+            border-left: 6px solid #a07eff;
+            padding: 0.9rem 1.5rem;
+            border-radius: 2rem;
+            box-shadow: 0 10px 20px #00000080;
+            color: white;
+            font-weight: 500;
+            z-index: 2000;
+            animation: slideIn 0.2s;
+            max-width: 300px;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(40px); }
+            to { opacity: 1; transform: translateX(0); }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>⏤͟͟͞͞ 发送命令</h1>
-        <div class="sub">加密会话 · 接收者 · 指令负载</div>
 
-        <!-- 输入表单 -->
-        <div class="field">
-            <label>🔑 密码 (session)</label>
-            <input type="password" id="sessionInput" placeholder="••••••••" autocomplete="off">
+<!-- 全屏验证界面 -->
+<div id="loginScreen" class="login-screen">
+    <div class="login-card">
+        <div class="login-title">⏤  ACCESS  ⏤</div>
+        <div class="login-sub">SESSION GATE · 暗号验证</div>
+        <div class="input-group">
+            <label class="input-label" for="password">通行密钥</label>
+            <input type="password" id="password" class="input-field" placeholder="输入 session 密码" autofocus>
         </div>
+        <button class="btn btn-accent" id="loginBtn">进入操作台</button>
+        <div style="margin-top: 1.2rem; text-align: center; color:#5f6380; font-size:0.8rem;">⏎ 验证后解锁命令面板</div>
+    </div>
+</div>
 
-        <div class="field">
-            <label>📡 接收者 ID (receiver)</label>
-            <input type="text" id="receiverInput" placeholder="例如: node-a42">
-        </div>
-
-        <div class="field">
-            <label>⚡ 命令 (cmd)</label>
-            <textarea id="cmdInput" placeholder="输入命令内容... 例如: GET /status"></textarea>
-        </div>
-
-        <div class="button-group">
-            <button class="btn btn-primary" id="sendBtn">发送命令</button>
-            <button class="btn" id="clearBtn">清除</button>
-        </div>
-
-        <!-- 状态 / 结果展示区 -->
-        <div class="status-card" id="resultPanel">
-            <div class="status-header">
-                <span>执行状态</span>
-                <span class="status-badge" id="stateBadge">就绪</span>
-            </div>
-            <div id="statusDetail">
-                <div class="result-item">
-                    <div class="result-label">接收者</div>
-                    <div class="result-value" id="displayReceiver">—</div>
-                </div>
-                <div class="result-item">
-                    <div class="result-label">阶段</div>
-                    <div class="result-value" id="displayStage">等待发送</div>
-                </div>
-                <div class="result-item hidden" id="headContainer">
-                    <div class="result-label">响应头 (head)</div>
-                    <div class="result-value" id="displayHead"></div>
-                </div>
-                <div class="result-item hidden" id="bodyContainer">
-                    <div class="result-label">响应体 (body)</div>
-                    <div class="result-value" id="displayBody"></div>
-                </div>
-            </div>
-            <div class="info-note" id="errorMessage"></div>
+<!-- 主界面 (发送端) -->
+<div id="mainScreen" class="main-screen">
+    <div class="main-header">
+        <span class="logo">◈  DARK  SENDER  ◈</span>
+        <div class="badge">
+            <span class="dot"></span>
+            <span id="sessionStatus">session 活跃</span>
+            <button class="btn-small" id="logoutBtn" style="background: none; border: none; color: #bb9eff; padding:0 0 0 1rem; box-shadow: none;">↺ 登出</button>
         </div>
     </div>
 
-    <script>
-        (function() {
-            // DOM elements
-            const sessionInput = document.getElementById('sessionInput');
-            const receiverInput = document.getElementById('receiverInput');
-            const cmdInput = document.getElementById('cmdInput');
-            const sendBtn = document.getElementById('sendBtn');
-            const clearBtn = document.getElementById('clearBtn');
-            const stateBadge = document.getElementById('stateBadge');
-            const displayReceiver = document.getElementById('displayReceiver');
-            const displayStage = document.getElementById('displayStage');
-            const headContainer = document.getElementById('headContainer');
-            const bodyContainer = document.getElementById('bodyContainer');
-            const displayHead = document.getElementById('displayHead');
-            const displayBody = document.getElementById('displayBody');
-            const errorMessage = document.getElementById('errorMessage');
+    <div class="grid-2">
+        <!-- 左侧：在线客户端 & 当前状态 -->
+        <div class="card">
+            <div class="card-title">📡 在线侦察兵</div>
+            <div style="display:flex; justify-content: space-between; margin-bottom:0.5rem;">
+                <span style="color:#99a3c0;">ID · 最后心跳</span>
+                <button id="refreshClientsBtn" style="background:none; border:none; color:#b794ff; cursor:pointer;">↻ 刷新</button>
+            </div>
+            <div id="clientListContainer" class="client-list">
+                <!-- 动态渲染客户端 -->
+                <div class="client-item"><span class="client-id">loading...</span></div>
+            </div>
+            <div style="margin-top: 1rem; border-top: 1px dashed #334; padding-top:1rem;">
+                <div class="card-title" style="margin-bottom:0.5rem;">⚡ 当前指令状态</div>
+                <div id="commandStatusArea" class="status-line">
+                    <div class="status-prop"><span class="prop-key">receiver</span><span id="statReceiver" class="prop-value">--</span></div>
+                    <div class="status-prop"><span class="prop-key">status</span><span id="statStatus" class="prop-value">--</span></div>
+                    <div class="status-prop" id="statExtraRow" style="display: none;"><span class="prop-key">head/body</span></div>
+                    <div id="responsePreview"></div>
+                </div>
+                <button id="refreshStatusBtn" class="btn-small" style="margin-top: 0.6rem; width:100%; background:#1f2535;">↻ 刷新状态</button>
+            </div>
+        </div>
 
-            // 轮询控制
-            let pollingInterval = null;
-            let isWaitingForResult = false;
+        <!-- 右侧：创建命令 + 手动获取响应 -->
+        <div class="card">
+            <div class="card-title">⚙️ 铸造指令</div>
+            <div class="form-row">
+                <label class="input-label">目标接收者 (receiver)</label>
+                <select id="receiverSelect" class="input-field">
+                    <option value="">-- 从上方列表选择 --</option>
+                </select>
+                <small style="color:#676e8c; display:block; margin-top:4px;">或手动输入ID</small>
+                <input type="text" id="receiverManual" class="input-field" placeholder="例如: unit_42" style="margin-top:6px;">
+            </div>
+            <div class="form-row">
+                <label class="input-label">命令内容 (cmd)</label>
+                <input type="text" id="cmdInput" class="input-field" placeholder="ls -la / or custom command">
+            </div>
+            <button class="btn btn-accent" id="sendCmdBtn" style="width:100%;">▶ 下发命令</button>
 
-            // 重置显示区域 (不清除输入)
-            function resetDisplay() {
-                stateBadge.textContent = '就绪';
-                displayReceiver.textContent = '—';
-                displayStage.textContent = '等待发送';
-                headContainer.classList.add('hidden');
-                bodyContainer.classList.add('hidden');
-                displayHead.textContent = '';
-                displayBody.textContent = '';
-                errorMessage.textContent = '';
-            }
+            <div style="margin: 2rem 0 1rem; border-top: 2px dotted #2c3145;"></div>
+            <div class="card-title">📬 拉取响应</div>
+            <button class="btn" id="fetchResponseBtn" style="margin-bottom:1rem;">📥 获取最新响应</button>
+            <div id="manualResponseArea" class="response-block" style="display: none;">
+                <div class="response-head" id="manualHead"></div>
+                <pre class="response-body" id="manualBody">—</pre>
+            </div>
+        </div>
+    </div>
 
-            // 清除输入
-            function clearInputs() {
-                sessionInput.value = '';
-                receiverInput.value = '';
-                cmdInput.value = '';
-                resetDisplay();
-            }
+    <!-- 状态条 (toast 容器) -->
+    <div id="toastContainer" style="position: fixed; bottom: 20px; right: 20px; z-index: 999;"></div>
+</div>
 
-            // 停止轮询
-            function stopPolling() {
-                if (pollingInterval) {
-                    clearInterval(pollingInterval);
-                    pollingInterval = null;
+<script>
+    (function() {
+        // --- 配置 ---
+        const API_BASE = '';  // 假设与前端同域，worker路由指向函数文件（/verify, /createcmd 等）
+        // 存储 session
+        let SESSION = localStorage.getItem('dark_session') || '';
+
+        // DOM 元素
+        const loginScreen = document.getElementById('loginScreen');
+        const mainScreen = document.getElementById('mainScreen');
+        const passwordInput = document.getElementById('password');
+        const loginBtn = document.getElementById('loginBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const sessionStatusSpan = document.getElementById('sessionStatus');
+        const clientListContainer = document.getElementById('clientListContainer');
+        const refreshClientsBtn = document.getElementById('refreshClientsBtn');
+        const refreshStatusBtn = document.getElementById('refreshStatusBtn');
+        const statReceiver = document.getElementById('statReceiver');
+        const statStatus = document.getElementById('statStatus');
+        const responsePreview = document.getElementById('responsePreview');
+        const receiverSelect = document.getElementById('receiverSelect');
+        const receiverManual = document.getElementById('receiverManual');
+        const cmdInput = document.getElementById('cmdInput');
+        const sendCmdBtn = document.getElementById('sendCmdBtn');
+        const fetchResponseBtn = document.getElementById('fetchResponseBtn');
+        const manualResponseArea = document.getElementById('manualResponseArea');
+        const manualHead = document.getElementById('manualHead');
+        const manualBody = document.getElementById('manualBody');
+
+        // 通用toast
+        function showToast(msg, isError = false) {
+            const toast = document.createElement('div');
+            toast.className = 'toast-message';
+            toast.style.borderLeftColor = isError ? '#ff5f7c' : '#a07eff';
+            toast.innerText = msg;
+            document.getElementById('toastContainer').appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        // 安全fetch
+        async function apiCall(endpoint, data, needsSession = false) {
+            const url = API_BASE + endpoint;
+            const body = { ...data };
+            if (needsSession) {
+                if (!SESSION) {
+                    showToast('无session，请重新登录', true);
+                    logout(); return;
                 }
-                isWaitingForResult = false;
-                sendBtn.disabled = false;
+                body.session = SESSION;
             }
-
-            // 开始轮询结果 (仅当命令成功发送后)
-            function startPolling() {
-                if (pollingInterval) stopPolling();
-                isWaitingForResult = true;
-                sendBtn.disabled = true;  // 发送后禁用按钮，防止重复
-                stateBadge.textContent = '轮询中';
-
-                pollingInterval = setInterval(async () => {
-                    try {
-                        // 调用 getresponse 端点 (POST)
-                        const response = await fetch('/getresponse', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({})  // 后端不需要具体参数
-                        });
-
-                        if (!response.ok) {
-                            throw new Error(`HTTP ${response.status}`);
-                        }
-
-                        const data = await response.json();
-
-                        if (!data.success) {
-                            throw new Error(data.error || '未知错误');
-                        }
-
-                        // 更新显示
-                        // 根据返回的 situation 字段解析 (格式: "receiver|stat")
-                        if (data.situation) {
-                            const sitStr = data.situation;
-                            const parts = sitStr.split('|');
-                            const recvFromSit = parts[0] || '?';
-                            const statFromSit = parts[1] || 'UNKNOWN';
-                            displayReceiver.textContent = recvFromSit;
-                            displayStage.textContent = statFromSit;
-
-                            // 如果后端额外返回了 receiver/stat 字段 (参考 getresponse.js)
-                            if (data.receiver) displayReceiver.textContent = data.receiver;
-                            if (data.stat) displayStage.textContent = data.stat;
-
-                            // 如果已完成
-                            if (statFromSit === 'FINISHED' || data.stat === 'FINISHED') {
-                                // 显示 head / body
-                                if (data.rshead !== undefined) {
-                                    headContainer.classList.remove('hidden');
-                                    displayHead.textContent = data.rshead || '(空)';
-                                } else {
-                                    headContainer.classList.add('hidden');
-                                }
-
-                                if (data.rsbody !== undefined) {
-                                    bodyContainer.classList.remove('hidden');
-                                    displayBody.textContent = data.rsbody || '(空)';
-                                } else {
-                                    bodyContainer.classList.add('hidden');
-                                }
-
-                                stateBadge.textContent = '已完成';
-                                stopPolling();  // 结束轮询
-                            } else {
-                                // 未完成：隐藏响应区域
-                                headContainer.classList.add('hidden');
-                                bodyContainer.classList.add('hidden');
-                                stateBadge.textContent = statFromSit || '处理中';
-                            }
-                        } else {
-                            // 没有 situation 字段（可能后端异常）
-                            displayStage.textContent = '未知状态';
-                        }
-
-                        errorMessage.textContent = ''; // 清除错误
-                    } catch (err) {
-                        console.warn('轮询错误:', err);
-                        errorMessage.textContent = `轮询失败: ${err.message}`;
-                        // 不停止轮询，继续尝试 (但显示错误)
-                    }
-                }, 1500); // 1.5秒间隔
-            }
-
-            // 发送命令
-            async function sendCommand() {
-                // 清除旧状态
-                resetDisplay();
-                stopPolling();
-
-                const session = sessionInput.value.trim();
-                const receiver = receiverInput.value.trim();
-                const cmd = cmdInput.value.trim();
-
-                if (!session || !receiver || !cmd) {
-                    errorMessage.textContent = '请填写所有字段 (session, 接收者, 命令)';
-                    return;
+            try {
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                const json = await res.json();
+                // 如果接口返回 access: false 且需要验证，说明 session 无效
+                if (needsSession && json.access === false) {
+                    showToast('session无效，请重新登录', true);
+                    logout();
+                    return null;
                 }
+                return json;
+            } catch (e) {
+                showToast('网络错误: ' + e.message, true);
+                return null;
+            }
+        }
 
-                // 临时显示
-                displayReceiver.textContent = receiver;
-                displayStage.textContent = '发送中...';
-                stateBadge.textContent = '验证';
+        // 登出
+        function logout() {
+            SESSION = '';
+            localStorage.removeItem('dark_session');
+            mainScreen.style.display = 'none';
+            loginScreen.style.display = 'flex';
+            passwordInput.value = '';
+        }
 
-                try {
-                    const response = await fetch('/createcmd', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            session: session,
-                            receiver: receiver,
-                            cmd: cmd
-                        })
-                    });
+        // 登录验证
+        async function login(session) {
+            const res = await apiCall('/verify', { session }, false);
+            if (res && res.success && res.access === true) {
+                SESSION = session;
+                localStorage.setItem('dark_session', session);
+                loginScreen.style.display = 'none';
+                mainScreen.style.display = 'block';
+                sessionStatusSpan.innerText = `session: ${session.substring(0,8)}...`;
+                // 加载初始数据
+                refreshClients();
+                refreshCommandStatus();
+            } else {
+                showToast('验证失败: 密钥错误', true);
+            }
+        }
 
-                    if (!response.ok) {
-                        throw new Error(`服务器响应 ${response.status}`);
-                    }
-
-                    const data = await response.json();
-
-                    if (!data.success) {
-                        throw new Error(data.error || '请求失败');
-                    }
-
-                    if (data.access === false) {
-                        // session 不匹配
-                        errorMessage.textContent = '❌ 认证失败：session 无效';
-                        displayStage.textContent = '拒绝访问';
-                        stateBadge.textContent = '失败';
-                        return;
-                    }
-
-                    if (data.access === true) {
-                        // 成功发送，开始轮询结果
-                        displayStage.textContent = '已发送，等待接收者...';
-                        stateBadge.textContent = 'PENDING';
-                        startPolling();
-                    } else {
-                        // 意外响应
-                        displayStage.textContent = '未知响应';
-                    }
-                } catch (err) {
-                    errorMessage.textContent = `发送错误: ${err.message}`;
-                    displayStage.textContent = '异常';
-                    stateBadge.textContent = '错误';
-                    stopPolling();
+        // 自动登录尝试
+        async function tryAutoLogin() {
+            if (SESSION) {
+                const res = await apiCall('/verify', { session: SESSION }, false);
+                if (res && res.success && res.access === true) {
+                    loginScreen.style.display = 'none';
+                    mainScreen.style.display = 'block';
+                    sessionStatusSpan.innerText = `session: ${SESSION.substring(0,8)}...`;
+                    refreshClients();
+                    refreshCommandStatus();
+                } else {
+                    localStorage.removeItem('dark_session');
+                    SESSION = '';
                 }
             }
+        }
 
-            // 事件绑定
-            sendBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                sendCommand();
+        // 获取在线客户端 (getdrugs)
+        async function refreshClients() {
+            const res = await apiCall('/getdrugs', {});
+            if (res && res.success) {
+                renderClientList(res.stj || {});
+            } else {
+                clientListContainer.innerHTML = '<div class="client-item">⚠️ 获取失败</div>';
+            }
+        }
+
+        function renderClientList(stj) {
+            const entries = Object.entries(stj);
+            if (entries.length === 0) {
+                clientListContainer.innerHTML = '<div class="client-item" style="color:#7f88aa;">✖ 暂无在线节点</div>';
+                receiverSelect.innerHTML = '<option value="">— 无客户端 —</option>';
+                return;
+            }
+            let html = '';
+            let options = '<option value="">— 选择ID —</option>';
+            entries.sort((a, b) => b[1].localeCompare(a[1])).forEach(([id, time]) => {
+                html += `<div class="client-item"><span class="client-id">${id}</span><span class="client-time">${time.slice(5,16)}</span></div>`;
+                options += `<option value="${id}">${id}</option>`;
             });
+            clientListContainer.innerHTML = html;
+            receiverSelect.innerHTML = options;
+        }
 
-            clearBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                clearInputs();
-                stopPolling();
-                resetDisplay();
-            });
+        // 获取当前指令状态 (getresponse)
+        async function refreshCommandStatus() {
+            const res = await apiCall('/getresponse', {});
+            if (!res || !res.success) {
+                statReceiver.innerText = 'error';
+                statStatus.innerText = '获取失败';
+                return;
+            }
+            // 处理可能为null的情况
+            if (!res.situation) {
+                statReceiver.innerText = '无指令';
+                statStatus.innerText = 'IDLE';
+                responsePreview.innerHTML = '';
+                return;
+            }
+            const [receiver, stat] = (res.situation || '').split('|');
+            statReceiver.innerText = receiver || '—';
+            statStatus.innerText = stat || '—';
 
-            // 页面卸载时清除轮询
-            window.addEventListener('beforeunload', () => {
-                if (pollingInterval) clearInterval(pollingInterval);
-            });
+            if (stat === 'FINISHED' && res.rshead && res.rsbody) {
+                responsePreview.innerHTML = `
+                    <div class="response-block">
+                        <div class="response-head">head: ${res.rshead}</div>
+                        <pre class="response-body">${res.rsbody}</pre>
+                    </div>
+                `;
+            } else {
+                responsePreview.innerHTML = ''; // 清空
+            }
+        }
 
-            // 初始重置
-            resetDisplay();
-        })();
-    </script>
+        // 创建命令 (createcmd)
+        async function createCommand() {
+            let receiver = receiverSelect.value;
+            if (!receiver) receiver = receiverManual.value.trim();
+            const cmd = cmdInput.value.trim();
 
-    <!-- 说明: 后端端点需映射到 /createcmd 和 /getresponse (POST) 
-         根据提供的worker代码，这些路由已经就绪。确保前端与API同域。 
-         暗色风格完全无emoji，符合要求 -->
+            if (!receiver || !cmd) {
+                showToast('请填写 receiver 和 cmd', true);
+                return;
+            }
+
+            const res = await apiCall('/createcmd', { receiver, cmd }, true);
+            if (res && res.success) {
+                showToast(`指令已发出 -> ${receiver}`, false);
+                cmdInput.value = '';   // 可选清空
+                refreshCommandStatus(); // 立即刷新状态
+            }
+        }
+
+        // 手动拉取响应并展示
+        async function fetchResponseManually() {
+            const res = await apiCall('/getresponse', {});
+            if (!res || !res.success) {
+                showToast('获取响应失败', true);
+                return;
+            }
+            if (!res.situation) {
+                manualResponseArea.style.display = 'block';
+                manualHead.innerText = '尚无任何指令';
+                manualBody.innerText = '—';
+                return;
+            }
+            const [receiver, stat] = res.situation.split('|');
+            manualResponseArea.style.display = 'block';
+            manualHead.innerText = `receiver: ${receiver} | status: ${stat}`;
+            if (stat === 'FINISHED' && res.rshead && res.rsbody) {
+                manualBody.innerText = `[head]: ${res.rshead}\n[body]: ${res.rsbody}`;
+            } else {
+                manualBody.innerText = `当前状态: ${stat}，尚无最终响应。`;
+            }
+        }
+
+        // 事件绑定
+        loginBtn.addEventListener('click', () => {
+            const pwd = passwordInput.value.trim();
+            if (!pwd) { showToast('请输入密码', true); return; }
+            login(pwd);
+        });
+
+        passwordInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') loginBtn.click();
+        });
+
+        logoutBtn.addEventListener('click', logout);
+
+        refreshClientsBtn.addEventListener('click', refreshClients);
+        refreshStatusBtn.addEventListener('click', refreshCommandStatus);
+        sendCmdBtn.addEventListener('click', createCommand);
+        fetchResponseBtn.addEventListener('click', fetchResponseManually);
+
+        // 选择下拉时同步到 manual 输入框（可选）
+        receiverSelect.addEventListener('change', () => {
+            if (receiverSelect.value) {
+                receiverManual.value = receiverSelect.value;
+            }
+        });
+
+        // 初始化：尝试自动登录，否则显示登录界面
+        tryAutoLogin().catch(() => {});
+
+        // 额外轮询：每15秒刷新客户端列表和状态（可选）
+        setInterval(() => {
+            if (mainScreen.style.display === 'block') {
+                refreshClients();
+                refreshCommandStatus();
+            }
+        }, 15000);
+    })();
+</script>
 </body>
 </html>
