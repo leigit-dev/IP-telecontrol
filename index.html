@@ -301,10 +301,10 @@
 
         .response-block {
             background: #0c0f17;
-            border-radius: 1.2rem;
+            border-radius: 0.5rem;
             padding: 1rem;
             margin-top: 0.8rem;
-            border-left: 4px solid #b300ff;
+            border-left: 2px solid #0600ff;
         }
 
         .response-head {
@@ -315,7 +315,7 @@
         .response-body {
             background: #1a1f2c;
             padding: 0.8rem;
-            border-radius: 1rem;
+            border-radius: 0.5rem;
             margin-top: 0.5rem;
             color: #b9d0ff;
             white-space: pre-wrap;
@@ -418,7 +418,7 @@
     <div class="grid-2">
         <!-- 左侧：在线客户端列表 (只保留此功能) -->
         <div class="card">
-            <div class="card-title">📡 在线侦察兵</div>
+            <div class="card-title">在线病毒</div>
             <div style="display:flex; justify-content: space-between; margin-bottom:0.5rem;">
                 <span style="color:#99a3c0;">ID · 最后心跳</span>
                 <button id="refreshClientsBtn" style="background:none; border:none; color:#b794ff; cursor:pointer;">↻ 刷新</button>
@@ -431,7 +431,7 @@
 
         <!-- 右侧：命令创建 + 响应展示 (当前响应已移至此处底部) -->
         <div class="card">
-            <div class="card-title">⚙️ 铸造指令 & 实时响应</div>
+            <div class="card-title">指令 & 响应</div>
             
             <!-- 命令表单 -->
             <div class="form-row">
@@ -443,7 +443,7 @@
                 <input type="text" id="receiverManual" class="input-field" placeholder="例如: unit_42" style="margin-top:6px;">
             </div>
             <div class="form-row">
-                <label class="input-label">命令内容 (cmd)</label>
+                <label class="input-label">命令内容</label>
                 <input type="text" id="cmdInput" class="input-field" placeholder="ls -la / or custom command">
             </div>
             <button class="btn btn-accent" id="sendCmdBtn" style="width:100%;">▶ 下发命令</button>
@@ -463,7 +463,7 @@
                 <button id="refreshStatusBtn" class="btn-small" style="background:#1f2535;">↻ 刷新状态</button>
                 <div class="poll-control">
                     <label>自动轮询</label>
-                    <input type="number" id="pollIntervalInput" min="1" max="300" value="10" step="1">
+                    <input type="number" id="pollIntervalInput" min="1" max="300" value="5" step="1">
                     <span style="color:#a0a8c9;">秒</span>
                 </div>
             </div>
@@ -664,7 +664,7 @@
             if (stat === 'FINISHED' && res.rshead && res.rsbody) {
                 responsePreview.innerHTML = `
                     <div class="response-block">
-                        <div class="response-head">head: ${res.rshead}</div>
+                        <div class="response-body"> ${res.rshead}</div>
                         <pre class="response-body">${res.rsbody}</pre>
                     </div>
                 `;
