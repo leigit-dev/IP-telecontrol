@@ -709,7 +709,7 @@
 
         async function cancelCommand() {
 
-            const res = await apiCall('/cancelcmd', { receiver, cmd }, true);
+            const res = await apiCall('/cancelcmd', {  }, true);
             if (res && res.success) {
                 showToast(`指令已取消 -> ${receiver}`, false);
                 //cmdInput.value = '';   // 可选清空
