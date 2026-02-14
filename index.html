@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>暗黑指挥 · 发送端</title>
+    <title>暗黑指挥 · 发送端 (自动轮询)</title>
     <style>
         * {
             margin: 0;
@@ -140,6 +140,12 @@
             border-color: #dbbaff;
         }
 
+        .btn-small {
+            padding: 0.6rem 1.4rem;
+            width: auto;
+            font-size: 0.9rem;
+        }
+
         .main-screen {
             width: 100%;
             min-height: 100vh;
@@ -203,6 +209,7 @@
             padding: 1.6rem 1.6rem;
             box-shadow: 0 20px 35px -12px #010101;
             transition: border 0.15s;
+            height: fit-content;
         }
 
         .card:hover {
@@ -328,18 +335,30 @@
             background-size: 1.2rem;
         }
 
-        .action-bar {
+        .poll-control {
             display: flex;
+            align-items: center;
             gap: 1rem;
-            justify-content: flex-end;
-            margin-top: 2rem;
-            flex-wrap: wrap;
+            margin-top: 1.2rem;
+            background: #1a1f2b;
+            border-radius: 3rem;
+            padding: 0.5rem 1.2rem;
         }
 
-        .btn-small {
-            padding: 0.6rem 1.4rem;
-            width: auto;
-            font-size: 0.9rem;
+        .poll-control label {
+            color: #abb4d6;
+            font-size: 0.85rem;
+            white-space: nowrap;
+        }
+
+        .poll-control input {
+            width: 80px;
+            background: #0c0f18;
+            border: 1px solid #5a4e7a;
+            border-radius: 2rem;
+            padding: 0.4rem 1rem;
+            color: white;
+            text-align: center;
         }
 
         .toast-message {
@@ -361,6 +380,11 @@
         @keyframes slideIn {
             from { opacity: 0; transform: translateX(40px); }
             to { opacity: 1; transform: translateX(0); }
+        }
+
+        hr {
+            border: 1px solid #2f354a;
+            margin: 1.5rem 0;
         }
     </style>
 </head>
@@ -392,7 +416,7 @@
     </div>
 
     <div class="grid-2">
-        <!-- 左侧：在线客户端 & 当前状态 -->
+        <!-- 左侧：在线客户端列表 (只保留此功能) -->
         <div class="card">
             <div class="card-title">📡 在线侦察兵</div>
             <div style="display:flex; justify-content: space-between; margin-bottom:0.5rem;">
@@ -403,21 +427,13 @@
                 <!-- 动态渲染客户端 -->
                 <div class="client-item"><span class="client-id">loading...</span></div>
             </div>
-            <div style="margin-top: 1rem; border-top: 1px dashed #334; padding-top:1rem;">
-                <div class="card-title" style="margin-bottom:0.5rem;">⚡ 当前指令状态</div>
-                <div id="commandStatusArea" class="status-line">
-                    <div class="status-prop"><span class="prop-key">receiver</span><span id="statReceiver" class="prop-value">--</span></div>
-                    <div class="status-prop"><span class="prop-key">status</span><span id="statStatus" class="prop-value">--</span></div>
-                    <div class="status-prop" id="statExtraRow" style="display: none;"><span class="prop-key">head/body</span></div>
-                    <div id="responsePreview"></div>
-                </div>
-                <button id="refreshStatusBtn" class="btn-small" style="margin-top: 0.6rem; width:100%; background:#1f2535;">↻ 刷新状态</button>
-            </div>
         </div>
 
-        <!-- 右侧：创建命令 + 手动获取响应 -->
+        <!-- 右侧：命令创建 + 响应展示 (当前响应已移至此处底部) -->
         <div class="card">
-            <div class="card-title">⚙️ 铸造指令</div>
+            <div class="card-title">⚙️ 铸造指令 & 实时响应</div>
+            
+            <!-- 命令表单 -->
             <div class="form-row">
                 <label class="input-label">目标接收者 (receiver)</label>
                 <select id="receiverSelect" class="input-field">
@@ -432,25 +448,36 @@
             </div>
             <button class="btn btn-accent" id="sendCmdBtn" style="width:100%;">▶ 下发命令</button>
 
-            <div style="margin: 2rem 0 1rem; border-top: 2px dotted #2c3145;"></div>
-            <div class="card-title">📬 拉取响应</div>
-            <button class="btn" id="fetchResponseBtn" style="margin-bottom:1rem;">📥 获取最新响应</button>
-            <div id="manualResponseArea" class="response-block" style="display: none;">
-                <div class="response-head" id="manualHead"></div>
-                <pre class="response-body" id="manualBody">—</pre>
+            <hr> <!-- 分割线，以下为响应区域 -->
+
+            <!-- 当前指令状态 + 响应预览 (原左侧的响应区域移动至此) -->
+            <div class="card-title" style="margin-bottom:0.5rem;">⚡ 当前指令状态</div>
+            <div id="commandStatusArea" class="status-line">
+                <div class="status-prop"><span class="prop-key">receiver</span><span id="statReceiver" class="prop-value">--</span></div>
+                <div class="status-prop"><span class="prop-key">status</span><span id="statStatus" class="prop-value">--</span></div>
+                <div id="responsePreview"></div>  <!-- 这里会动态渲染响应块 -->
+            </div>
+
+            <!-- 控制栏：手动刷新 + 自动轮询间隔设置 -->
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.8rem; margin-top: 1rem;">
+                <button id="refreshStatusBtn" class="btn-small" style="background:#1f2535;">↻ 刷新状态</button>
+                <div class="poll-control">
+                    <label>自动轮询</label>
+                    <input type="number" id="pollIntervalInput" min="1" max="300" value="10" step="1">
+                    <span style="color:#a0a8c9;">秒</span>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- 状态条 (toast 容器) -->
+    <!-- toast 容器 -->
     <div id="toastContainer" style="position: fixed; bottom: 20px; right: 20px; z-index: 999;"></div>
 </div>
 
 <script>
     (function() {
         // --- 配置 ---
-        const API_BASE = '';  // 假设与前端同域，worker路由指向函数文件（/verify, /createcmd 等）
-        // 存储 session
+        const API_BASE = '';  // 假设同域，worker路由指向函数文件
         let SESSION = localStorage.getItem('dark_session') || '';
 
         // DOM 元素
@@ -470,10 +497,10 @@
         const receiverManual = document.getElementById('receiverManual');
         const cmdInput = document.getElementById('cmdInput');
         const sendCmdBtn = document.getElementById('sendCmdBtn');
-        const fetchResponseBtn = document.getElementById('fetchResponseBtn');
-        const manualResponseArea = document.getElementById('manualResponseArea');
-        const manualHead = document.getElementById('manualHead');
-        const manualBody = document.getElementById('manualBody');
+        const pollIntervalInput = document.getElementById('pollIntervalInput');
+
+        // 自动轮询句柄
+        let pollTimer = null;
 
         // 通用toast
         function showToast(msg, isError = false) {
@@ -485,14 +512,15 @@
             setTimeout(() => toast.remove(), 3000);
         }
 
-        // 安全fetch
+        // 安全fetch (统一处理 session 和 access=false)
         async function apiCall(endpoint, data, needsSession = false) {
             const url = API_BASE + endpoint;
             const body = { ...data };
             if (needsSession) {
                 if (!SESSION) {
                     showToast('无session，请重新登录', true);
-                    logout(); return;
+                    logout(); 
+                    return null;
                 }
                 body.session = SESSION;
             }
@@ -503,7 +531,6 @@
                     body: JSON.stringify(body)
                 });
                 const json = await res.json();
-                // 如果接口返回 access: false 且需要验证，说明 session 无效
                 if (needsSession && json.access === false) {
                     showToast('session无效，请重新登录', true);
                     logout();
@@ -523,6 +550,28 @@
             mainScreen.style.display = 'none';
             loginScreen.style.display = 'flex';
             passwordInput.value = '';
+            stopPolling();
+        }
+
+        // 停止轮询
+        function stopPolling() {
+            if (pollTimer) {
+                clearInterval(pollTimer);
+                pollTimer = null;
+            }
+        }
+
+        // 启动轮询 (间隔秒数)
+        function startPolling(seconds) {
+            stopPolling();
+            if (!seconds || seconds <= 0) return;
+            pollTimer = setInterval(() => {
+                // 只有在主界面显示时才刷新，避免后台无效请求
+                if (mainScreen.style.display === 'block') {
+                    refreshClients();
+                    refreshCommandStatus();
+                }
+            }, seconds * 1000);
         }
 
         // 登录验证
@@ -537,6 +586,9 @@
                 // 加载初始数据
                 refreshClients();
                 refreshCommandStatus();
+                // 启动自动轮询 (默认取输入框值)
+                const interval = parseInt(pollIntervalInput.value, 10) || 10;
+                startPolling(interval);
             } else {
                 showToast('验证失败: 密钥错误', true);
             }
@@ -552,6 +604,8 @@
                     sessionStatusSpan.innerText = `session: ${SESSION.substring(0,8)}...`;
                     refreshClients();
                     refreshCommandStatus();
+                    const interval = parseInt(pollIntervalInput.value, 10) || 10;
+                    startPolling(interval);
                 } else {
                     localStorage.removeItem('dark_session');
                     SESSION = '';
@@ -586,12 +640,13 @@
             receiverSelect.innerHTML = options;
         }
 
-        // 获取当前指令状态 (getresponse)
+        // 获取当前指令状态 (getresponse) 并渲染响应区
         async function refreshCommandStatus() {
             const res = await apiCall('/getresponse', {});
             if (!res || !res.success) {
                 statReceiver.innerText = 'error';
                 statStatus.innerText = '获取失败';
+                responsePreview.innerHTML = '';
                 return;
             }
             // 处理可能为null的情况
@@ -605,6 +660,7 @@
             statReceiver.innerText = receiver || '—';
             statStatus.innerText = stat || '—';
 
+            // 如果状态是 FINISHED，展示响应块 (已移动到右侧底部)
             if (stat === 'FINISHED' && res.rshead && res.rsbody) {
                 responsePreview.innerHTML = `
                     <div class="response-block">
@@ -636,29 +692,6 @@
             }
         }
 
-        // 手动拉取响应并展示
-        async function fetchResponseManually() {
-            const res = await apiCall('/getresponse', {});
-            if (!res || !res.success) {
-                showToast('获取响应失败', true);
-                return;
-            }
-            if (!res.situation) {
-                manualResponseArea.style.display = 'block';
-                manualHead.innerText = '尚无任何指令';
-                manualBody.innerText = '—';
-                return;
-            }
-            const [receiver, stat] = res.situation.split('|');
-            manualResponseArea.style.display = 'block';
-            manualHead.innerText = `receiver: ${receiver} | status: ${stat}`;
-            if (stat === 'FINISHED' && res.rshead && res.rsbody) {
-                manualBody.innerText = `[head]: ${res.rshead}\n[body]: ${res.rsbody}`;
-            } else {
-                manualBody.innerText = `当前状态: ${stat}，尚无最终响应。`;
-            }
-        }
-
         // 事件绑定
         loginBtn.addEventListener('click', () => {
             const pwd = passwordInput.value.trim();
@@ -675,25 +708,39 @@
         refreshClientsBtn.addEventListener('click', refreshClients);
         refreshStatusBtn.addEventListener('click', refreshCommandStatus);
         sendCmdBtn.addEventListener('click', createCommand);
-        fetchResponseBtn.addEventListener('click', fetchResponseManually);
 
-        // 选择下拉时同步到 manual 输入框（可选）
+        // 选择下拉时同步到 manual 输入框
         receiverSelect.addEventListener('change', () => {
             if (receiverSelect.value) {
                 receiverManual.value = receiverSelect.value;
             }
         });
 
-        // 初始化：尝试自动登录，否则显示登录界面
-        tryAutoLogin().catch(() => {});
-
-        // 额外轮询：每15秒刷新客户端列表和状态（可选）
-        setInterval(() => {
+        // 轮询间隔变化时重启定时器
+        pollIntervalInput.addEventListener('change', () => {
             if (mainScreen.style.display === 'block') {
-                refreshClients();
-                refreshCommandStatus();
+                const interval = parseInt(pollIntervalInput.value, 10);
+                if (isNaN(interval) || interval < 1) {
+                    stopPolling();
+                } else {
+                    startPolling(interval);
+                }
             }
-        }, 15000);
+        });
+
+        // 初始化：尝试自动登录
+        tryAutoLogin();
+
+        // 可选：页面隐藏时暂停轮询 (性能优化)
+        document.addEventListener('visibilitychange', () => {
+            if (mainScreen.style.display !== 'block') return;
+            if (document.hidden) {
+                stopPolling();
+            } else {
+                const interval = parseInt(pollIntervalInput.value, 10);
+                if (interval > 0) startPolling(interval);
+            }
+        });
     })();
 </script>
 </body>

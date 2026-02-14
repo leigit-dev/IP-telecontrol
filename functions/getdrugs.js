@@ -21,6 +21,7 @@ export async function onRequestPost(context) {
         let stj=read_connect(st);
         return new Response(JSON.stringify({
             success: true,
+            st:st,
             stj:stj
         }), {
             headers: { 'Content-Type': 'application/json' }
